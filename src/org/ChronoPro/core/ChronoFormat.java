@@ -1,5 +1,7 @@
 package org.ChronoPro.core;
 
+import java.text.DecimalFormat;
+
 public class ChronoFormat {
 
 	private final long days;
@@ -12,6 +14,11 @@ public class ChronoFormat {
 	private static final long COEFF_HOURS = 1000 * 60 * 60;
 	private static final long COEFF_MIN = 1000 * 60;
 	private static final long COEFF_SEC = 1000;
+	
+	private static final int NB_CHAR_HOURS = 2;
+	private static final int NB_CHAR_MIN = 2;
+	private static final int NB_CHAR_SEC = 2;
+	private static final int NB_CHAR_MILLI = 3;
 
 	private static final String DAY_CHAR = "d";
 	private static final String HOUR_CHAR = "h";
@@ -41,15 +48,26 @@ public class ChronoFormat {
 
 	public String getCompleteDate(){
 		StringBuffer buf = new StringBuffer();
+		DecimalFormat format = new DecimalFormat();
+		
 		if(days != 0)
 			buf.append(days).append(DAY_CHAR).append(DELIMITER);
-		if(days !=0 || hours !=0)
-			buf.append(hours).append(HOUR_CHAR).append(DELIMITER);
-		if(days != 0 || hours != 0 || min !=0)
-			buf.append(min).append(MIN_CHAR).append(DELIMITER);
 		
-		buf.append(sec).append(SEC_CHAR).append(DELIMITER);
-		buf.append(milli).append(MILLI_CHAR).append(DELIMITER);
+		if(days !=0 || hours !=0){
+			format.setMinimumIntegerDigits(NB_CHAR_HOURS);
+			buf.append(format.format(hours)).append(HOUR_CHAR).append(DELIMITER);
+		}
+		
+		if(days != 0 || hours != 0 || min !=0){
+			format.setMinimumIntegerDigits(NB_CHAR_MIN);
+			buf.append(format.format(min)).append(MIN_CHAR).append(DELIMITER);
+		}
+		
+		format.setMinimumIntegerDigits(NB_CHAR_SEC);
+		buf.append(format.format(sec)).append(SEC_CHAR).append(DELIMITER);
+		
+		format.setMinimumIntegerDigits(NB_CHAR_MILLI);
+		buf.append(format.format(milli)).append(MILLI_CHAR).append(DELIMITER);
 			
 		return buf.toString();
 	}

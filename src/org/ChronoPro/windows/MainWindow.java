@@ -1,18 +1,28 @@
 package org.ChronoPro.windows;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Label;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 import org.ChronoPro.config.DisplayConstants;
 import org.ChronoPro.core.Chrono;
@@ -33,8 +43,8 @@ public class MainWindow extends JFrame {
 	private final JButton stopButton = new JButton("Stop");
 	private final JButton pauseButton = new JButton("Pause");
 	
-	private final Label errorMessage = new Label();
-	private final Label chronoLabel = new Label();
+	private final JLabel errorMessage = new JLabel();
+	private final JLabel chronoLabel = new JLabel();
 	
 	private final Timer timer;
 	private final Timer timerMessage;
@@ -61,7 +71,7 @@ public class MainWindow extends JFrame {
 		timer = new Timer(100, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				chronoLabel.setText(chrono.getTime().getCompleteDate());
+				refreshChronoLabel();
 			}
 		});
 		
@@ -72,20 +82,30 @@ public class MainWindow extends JFrame {
 				timerMessage.stop();
 			}
 		});
+		
 	}
 	
 	private void createWindowProterties(){
 		this.setTitle(Constants.MAIN_WINDOW_TITLE);
-		this.setSize(400, 500);
+		this.setSize(600, 300);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 	}
 	
 	private void createMenuBar(){
 		JMenu menu1 = new JMenu();
+	
 		menu1.setText(Constants.MENU_BAR_TITLE);
 		JMenuItem menuItem1 = new JMenuItem(Constants.MENU_BAR_OPT);
+		menuItem1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setMessage("BLA BLA");
+				
+			}
+		});
 		menu1.add(menuItem1);
 		
 		menuBar.add(menu1);
@@ -94,13 +114,17 @@ public class MainWindow extends JFrame {
 	
 	private void createChronoField(){
 		
-		chronoLabel.setBackground(new Color(100, 100, 100));
 		chronoLabel.setForeground(new Color(255,255,255));
 		chronoLabel.setFont(DisplayConstants.fontChrono);
 		
-		chronoPanel.setLayout(new BoxLayout(chronoPanel, BoxLayout.LINE_AXIS));
+		chronoPanel.setLayout(new GridBagLayout());
 		chronoPanel.add(chronoLabel);
-		
+		chronoPanel.setBackground(new Color(100, 100, 100));
+		chronoPanel.setMinimumSize(new Dimension(300, 200));
+		chronoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		chronoPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+		Dimension dim = new Dimension(Integer.MAX_VALUE, 200);
+	    chronoPanel.setMaximumSize(dim);
 		mainPanel.add(chronoPanel);
 	}
 	
@@ -124,6 +148,7 @@ public class MainWindow extends JFrame {
 					chrono.start();
 					timer.start();
 					setMessage("Chrono started ! ");
+					pauseButton.requestFocusInWindow();
 				} catch (ChronoException e1) {
 					setError(e1.getMessage());
 				}
@@ -136,6 +161,7 @@ public class MainWindow extends JFrame {
 				try {
 					chrono.stop();
 					timer.stop();
+					refreshChronoLabel();
 				} catch (ChronoException e1) {
 					setError(e1.getMessage());
 				}
@@ -148,6 +174,7 @@ public class MainWindow extends JFrame {
 				try {
 					chrono.pause();
 					timer.stop();
+					refreshChronoLabel();
 				} catch (ChronoException e1) {
 					try {
 						chrono.resume();
@@ -157,7 +184,23 @@ public class MainWindow extends JFrame {
 					}
 				}
 			}
-		});		
+		});
+		
+		pauseButton.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				pauseButton.doClick();
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		});
 	}
 
 	
@@ -178,6 +221,10 @@ public class MainWindow extends JFrame {
 		errorMessage.setForeground(new Color(255,0,0));
 		errorMessage.setText(message);
 		timerMessage.start();
+	}
+	
+	private void refreshChronoLabel(){
+		chronoLabel.setText(chrono.getTime().getCompleteDate());
 	}
 	
 }

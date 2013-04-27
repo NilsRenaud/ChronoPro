@@ -31,8 +31,9 @@ public class Chrono {
 	public void stop() throws ChronoException{
 		if(!isStarted)
 			throw new ChronoException(CodeException.CHRONO_NOT_STARTED);
-	
-		save += System.currentTimeMillis() - startTime;
+		if(!isInPause)
+			save += System.currentTimeMillis() - startTime;
+		
 		isStarted = false;
 		isInPause = false;
 	}
